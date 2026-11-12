@@ -83,11 +83,21 @@ export function encodeBase64(input: Uint8Array, url = false): string {
   return url ? encoded.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_') : encoded
 }
 
+// The five ASCII whitespace code points the HTML spec makes atob() silently strip. The native
+// Uint8Array.fromBase64() (TC39) does not skip any whitespace, so leaving this to atob() made the
+// same token decode on runtimes without the native API but throw an encoding error elsewhere.
+// Rejecting them up front keeps both code paths on identical acceptance rules.
+const ASCII_WHITESPACE = /[\t\n\f\r ]/
+
 export function decodeBase64(encoded: string, url = false): Uint8Array {
   // @ts-ignore
   if (Uint8Array.fromBase64) {
     // @ts-ignore
     return Uint8Array.fromBase64(encoded, { alphabet: url ? 'base64url' : 'base64' })
+  }
+
+  if (ASCII_WHITESPACE.test(encoded)) {
+    throw new TypeError('ASCII whitespace is not valid base64')
   }
 
   if (url) {

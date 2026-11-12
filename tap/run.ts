@@ -22,6 +22,7 @@ export default async (
     import('./aeskw.js'),
     import('./cookbook.js'),
     import('./ecdh.js'),
+    import('./encoding.js'),
     import('./general.js'),
     import('./generate_options.js'),
     import('./hmac.js'),
